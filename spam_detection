@@ -1,0 +1,28 @@
+# 1. Import necessary libraries
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import make_pipeline
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.naive_bayes import MultinomialNB
+
+# 2. Load data (change path if needed)
+data = pd.read_csv('/kaggle/input/spam-dataset-update/Spam_Dataset.txt', sep='\t', header=None, names=['label', 'message'])
+
+# 3. Convert labels to numbers: 'ham' → 0, 'spam' → 1
+data['label_num'] = data['label'].map({'ham': 0, 'spam': 1})
+
+# 4. Split data into training & testing sets
+X_train, X_test, y_train, y_test = train_test_split(data['message'], data['label_num'], test_size=0.2, random_state=42)
+
+# 5. Create a model pipeline with TfidfVectorizer + MultinomialNB
+model = make_pipeline(TfidfVectorizer(), MultinomialNB())
+model.fit(X_train, y_train)
+
+# 6. Predict on user input
+label_map = {0: "Not Spam", 1: "Spam"}
+while True:
+    msg = input("Enter a message (or 'exit' to quit):\n")
+    if msg.lower() == 'exit':
+        break
+    pred = model.predict([msg])[0]
+    print(f"\nPrediction: This message is -> {label_map[pred]}\n")
